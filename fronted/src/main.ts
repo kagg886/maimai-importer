@@ -12,10 +12,13 @@ import Step1 from "./step/Step1.vue";
 import {aliases, mdi} from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
 import Step2 from "./step/Step2.vue";
-
+import {VFab} from 'vuetify/labs/VFab'
 
 const vuetify = createVuetify({
-    components,
+    components: {
+        ...components,
+        VFab
+    },
     directives,
     icons: {
         defaultSet: 'mdi',

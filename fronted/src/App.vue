@@ -16,7 +16,7 @@ onMounted(() => {
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <keep-alive>
-          <component :is="Component" />
+          <component :is="Component" :key="Math.random()"/>
         </keep-alive>
       </transition>
     </router-view>

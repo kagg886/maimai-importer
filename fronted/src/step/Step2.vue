@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import {useRouter} from "vue-router";
-import {inject, ref} from "vue";
+import {inject, nextTick, onMounted, ref, watch} from "vue";
 import {createSocket, LogMessage, RequireMessage} from "../util/network.ts";
+import {VVirtualScroll} from 'vuetify/components'
 
 const router = useRouter()
-const config = sessionStorage.getItem("config") as string
+const config = localStorage.getItem("config") as string
 
 console.log("接收的step1配置文件", config)
 
@@ -25,6 +26,9 @@ const calcIcon = (level: number) => {
     case 3:
       s = "mdi-skull"
       break
+    case 4:
+      s = "mdi-close-circle-outline"
+      break
   }
   return s
 }
@@ -40,11 +44,24 @@ const calcClass = (level: number) => {
     case 3:
       s = "error"
       break
+    case 4:
+      s = ""
   }
   return s
 }
 
 const loggerList = ref<Array<LogMessage>>([])
+
+const virtualScroll = ref<VVirtualScroll>()
+
+onMounted(() => {
+  //TODO 滚动总是停留在倒数第二个，bug待解决
+  watch(loggerList.value, async () => {
+    console.log('fab')
+    await nextTick()
+    virtualScroll.value!!.scrollToIndex(loggerList.value.length)
+  })
+})
 
 // loggerList.value.push({
 //   level: 1,
@@ -82,7 +99,7 @@ const loggerList = ref<Array<LogMessage>>([])
 //     msg: "qwq",
 //     time: new Date()
 //   })
-// },1000)
+// },500)
 
 const height = inject('container_height') as number
 
@@ -110,12 +127,30 @@ const socket = createSocket({
   }
 })
 
+const show_fab = ref(false)
+const fabClick = ref<() => void>()
 socket.onclose = (ev: CloseEvent) => {
+  show_fab.value = true
+  if (ev.reason === "maimai数据更新完毕") {
+    fabClick.value = () => {
+      router.push("/")
+    }
+  } else {
+    fabClick.value = () => {
+      router.push("/step1")
+    }
+  }
   loggerList.value.push({
-    level: 1,
+    level: 4,
     msg: `WebSocket服务已断开,标识码:${ev.code},原因:${ev.reason}`,
     time: new Date()
   })
+  loggerList.value.push({
+    level: 1,
+    msg: `请点击右下角按钮以继续`,
+    time: new Date()
+  })
+
 }
 
 const log = ref(false)
@@ -133,17 +168,10 @@ const showLog = (msg0: string) => {
 
 <template>
   <div>
-    <v-dialog v-model="log" width="auto">
-      <v-card max-width="400">
-        <template v-slot:title>日志详情</template>
-        <template v-slot:subtitle>按ESC以关闭</template>
-        <v-card-text>{{ msg }}</v-card-text>
-      </v-card>
-    </v-dialog>
     <v-virtual-scroll
+        ref="virtualScroll"
         :height="height"
-        :items="loggerList"
-    >
+        :items="loggerList">
       <template v-slot:default="{ item }">
         <v-list-item
             @click="showLog(item.msg)"
@@ -161,11 +189,22 @@ const showLog = (msg0: string) => {
           </template>
 
           <v-list-item-title :class="calcClass(item.level)"
-                             v-text="item.msg.substring(1,Math.min(item.msg.length,25))"></v-list-item-title>
+                             v-text="item.msg.substring(0,Math.min(item.msg.length,25))"></v-list-item-title>
         </v-list-item>
       </template>
     </v-virtual-scroll>
 
+    <Transition mode="out-in" name="fade">
+      <v-fab @click="fabClick?.()" v-show="show_fab" icon="mdi-step-forward" absolute :size="70"
+             style="bottom: 30px; right: 30px"></v-fab>
+    </Transition>
+    <v-dialog v-model="log" width="auto">
+      <v-card max-width="400">
+        <template v-slot:title>日志详情</template>
+        <template v-slot:subtitle>按ESC以关闭</template>
+        <v-card-text>{{ msg }}</v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog
         persistent
         v-model="show"

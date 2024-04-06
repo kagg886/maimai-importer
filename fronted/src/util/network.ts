@@ -1,4 +1,5 @@
 const base_url = "localhost:8080"
+//const base_url = window.location.host
 
 export const request = async (url: string, init: RequestInit = {}) => {
     return await fetch(`http://${base_url}/${url}`, init).then(res => res.json())

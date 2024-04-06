@@ -60,9 +60,24 @@ const generateConfig = () => {
   }
   //TODO 配置文件连接到服务器
   const pack = JSON.stringify(config)
-  sessionStorage.setItem("config", pack)
+  localStorage.setItem("config", pack)
+  importNow()
+}
+
+const importNow = () => {
   router.push("/step2")
   open.value = false
+  contain_config.value = false
+}
+
+const contain_config = ref(false)
+if (localStorage.getItem("config") != null) {
+  contain_config.value = true
+}
+
+const clearConfig = () => {
+  localStorage.removeItem("config")
+  contain_config.value = false
 }
 </script>
 
@@ -72,7 +87,7 @@ const generateConfig = () => {
       <h1>连接到服务器</h1>
 
       <v-progress-circular indeterminate v-if="server_config===undefined"></v-progress-circular>
-      <ul>
+      <ul v-else>
         <li v-for="config in server_config">
           <v-card width="400">
             <template v-slot:title>
@@ -90,6 +105,19 @@ const generateConfig = () => {
         </li>
       </ul>
     </div>
+
+    <v-dialog persistent
+              v-model="contain_config"
+              width="auto">
+      <v-card max-width="400">
+        <template v-slot:title>您似乎之前使用过该工具</template>
+        <template v-slot:subtitle>是否使用之前的设置导入数据?</template>
+        <template v-slot:actions>
+          <v-btn @click="clearConfig">否，并清除配置数据</v-btn>
+          <v-btn @click="importNow">是，现在就开始导入</v-btn>
+        </template>
+      </v-card>
+    </v-dialog>
 
     <v-dialog
         v-model="open"

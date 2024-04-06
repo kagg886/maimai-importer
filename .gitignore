@@ -36,3 +36,4 @@ out/
 .vscode/
 
 maimai-logger
+src/main/resources/fronted

@@ -2,6 +2,7 @@ package top.kagg886.maimai.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.http.content.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import top.kagg886.maimai.upload.DivingFishUploadProtocol
@@ -16,6 +17,14 @@ fun buildImg(img: ByteArray): String {
 }
 
 fun Application.configureRouting() {
+    routing {
+        singlePageApplication {
+            useResources = true
+            filesPath = "fronted"
+            defaultPage = "index.html"
+        }
+    }
+
     routing {
         get("/config") {
             call.respond(

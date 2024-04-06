@@ -82,7 +82,7 @@ class Connection(private var session: DefaultWebSocketSession) {
             flow.awaitNewMessage(timeout = Duration.parse("3s"))?.apply {
                 val store = contentOrNull<SessionRestore>()
                 if (store == null) {
-                    logInfo("微信uid未推送，将作为新会话开始导入流程")
+                    logWarn("微信uid未推送，将作为新会话开始导入流程")
                     return@apply
                 }
 

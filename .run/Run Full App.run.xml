@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="Run Full App" type="KtorApplicationConfigurationType" factoryName="Ktor">
+        <module name="maimai-importer.main"/>
+        <option name="alternativeJrePath"/>
+        <option name="alternativeJrePathEnabled" value="false"/>
+        <option name="includeProvidedScope" value="true"/>
+        <option name="mainClass" value="top.kagg886.maimai.ApplicationKt"/>
+        <option name="passParentEnvs" value="true"/>
+        <option name="programParameters" value=""/>
+        <option name="shortenCommandLine" value="NONE"/>
+        <option name="vmParameters" value=""/>
+        <option name="workingDirectory" value=""/>
+        <method v="2">
+            <option name="RunConfigurationTask" enabled="true" run_configuration_name="build"
+                    run_configuration_type="js.build_tools.npm"/>
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
+</component>
