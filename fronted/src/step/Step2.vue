@@ -46,16 +46,16 @@ const calcClass = (level: number) => {
 
 const loggerList = ref<Array<LogMessage>>([])
 
-loggerList.value.push({
-  level: 1,
-  msg: "qwq",
-  time: new Date()
-})
-loggerList.value.push({
-  level: 1,
-  msg: "qwq".repeat(100),
-  time: new Date()
-})
+// loggerList.value.push({
+//   level: 1,
+//   msg: "qwq",
+//   time: new Date()
+// })
+// loggerList.value.push({
+//   level: 1,
+//   msg: "qwq".repeat(100),
+//   time: new Date()
+// })
 // loggerList.value.push({
 //   level: 2,
 //   msg: "qwq",
