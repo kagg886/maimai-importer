@@ -1,19 +1,17 @@
 <script setup lang="ts">
 
-import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
+import {onMounted, provide, ref} from "vue";
 
 const progress = ref(1)
 
-const route = useRouter()
 onMounted(() => {
-  route.push(window.location.pathname)
+  provide('container_height',document.getElementById('container')!!.clientHeight)
 })
 
 </script>
 
 <template>
-  <div class="container">
+  <div id="container" class="container">
     <v-progress-linear v-model="progress"></v-progress-linear>
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">

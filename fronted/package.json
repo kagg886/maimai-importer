@@ -11,7 +11,7 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "vue": "^3.4.21",
-    "vue-router": "4",
+    "vue-router": "^4.3.0",
     "vuetify": "^3.5.14"
   },
   "devDependencies": {

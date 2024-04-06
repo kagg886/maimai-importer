@@ -12,7 +12,7 @@ dependencies:
     specifier: ^3.4.21
     version: 3.4.21(typescript@5.4.4)
   vue-router:
-    specifier: '4'
+    specifier: ^4.3.0
     version: 4.3.0(vue@3.4.21)
   vuetify:
     specifier: ^3.5.14

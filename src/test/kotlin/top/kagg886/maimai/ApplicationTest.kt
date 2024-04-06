@@ -1,6 +1,8 @@
 package top.kagg886.maimai
 
 import io.ktor.client.plugins.websocket.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.server.testing.*
 import io.ktor.util.logging.*
 import io.ktor.websocket.*
@@ -17,6 +19,7 @@ import top.kagg886.maimai.upload.DivingFishUploadProtocol
 import top.kagg886.maimai.ws.awaitNewMessage
 import java.awt.Graphics
 import java.io.ByteArrayInputStream
+import java.net.URL
 import javax.imageio.ImageIO
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -46,13 +49,17 @@ class ApplicationTest {
                 val pack = DataPack.decode(dataPack.readText())
                 when {
                     pack.isInstance(WechatShowImage::class.java) -> {
-                        val bytes = pack.content<WechatShowImage>().bytes
-                        if (bytes == null) {
+                        val url = pack.content<WechatShowImage>().uid
+                        if (url == null) {
                             frame?.dispose()
                             continue
                         }
                         frame?.dispose()
-                        val qr = ImageIO.read(ByteArrayInputStream(bytes))
+                        val qr = ImageIO.read(ByteArrayInputStream(
+                            client.get("/img") {
+                                parameter("id",url)
+                            }.readBytes()
+                        ))
                         frame = JFrame("扫描二维码")
 
                         frame.add(object : JPanel() {
@@ -76,8 +83,8 @@ class ApplicationTest {
                                     Frame.Text(
                                         DataPack.build(
                                             DivingFishUploadProtocol.DivingFishUploadConfig(
-                                                "root",
-                                                "123456",
+                                                "iveour@163.com",
+                                                "baleitem103",
                                                 listOf(3, 4)
                                             )
                                         ).encode()

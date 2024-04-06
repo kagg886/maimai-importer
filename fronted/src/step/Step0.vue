@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+//主页
 import DescriptionCard from "../componments/DescriptionCard.vue";
 import {useRouter} from "vue-router";
 

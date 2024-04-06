@@ -3,6 +3,7 @@ package top.kagg886.maimai.plugins
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import io.ktor.util.logging.*
 import io.ktor.websocket.*
 import top.kagg886.maimai.data.DataPack
 import top.kagg886.maimai.ws.Connection
@@ -11,6 +12,8 @@ import java.time.Duration
 import java.util.*
 
 val list = Collections.synchronizedSet<Connection>(LinkedHashSet())
+
+val logger = KtorSimpleLogger("CloseReason")
 
 fun Application.configureSockets() {
     install(WebSockets) {
@@ -23,7 +26,6 @@ fun Application.configureSockets() {
 
         webSocket("/ws") {
             val session = Connection(this)
-            session.logInfo("连接成功")
             list.add(session)
             for (frame in incoming) {
                 if (frame is Frame.Text) {
@@ -32,6 +34,7 @@ fun Application.configureSockets() {
                 }
             }
             val cause = this.closeReason.await()
+            logger.info("user:${session.hashCode()} -> 会话断开链接(${cause?.code})，原因:${cause?.message}")
             if (cause!!.code == 4001.toShort()) {
                 list.remove(session)
             }

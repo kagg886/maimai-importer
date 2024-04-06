@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.first
 import top.kagg886.maimai.data.*
 import top.kagg886.maimai.plugins.MAIMAI_ERROR
 import top.kagg886.maimai.plugins.MAIMAI_SUCCESS
+import top.kagg886.maimai.plugins.buildImg
 import top.kagg886.maimai.plugins.list
 import top.kagg886.maimai.upload.DivingFishUploadProtocol
 import top.kagg886.maimai.weixin.WechatSession
@@ -103,12 +104,13 @@ class Connection(private var session: DefaultWebSocketSession) {
             val wx = WechatSession.createNewSession(object : WechatSessionLoginListener {
                 override suspend fun onQRCodeReceived(bytes: ByteArray) {
                     logInfo("成功获取二维码")
-                    sendPacket(DataPack.build(WechatShowImage(bytes)))
+
+                    sendPacket(DataPack.build(WechatShowImage(buildImg(bytes))))
                 }
 
                 override suspend fun onQRCodeScanned(bytes: ByteArray) {
                     logInfo("二维码已扫描")
-                    sendPacket(DataPack.build(WechatShowImage(bytes)))
+                    sendPacket(DataPack.build(WechatShowImage(buildImg(bytes))))
                 }
 
                 override suspend fun onLoginComplete(success: Boolean, message: String) {
@@ -144,6 +146,7 @@ class Connection(private var session: DefaultWebSocketSession) {
                 return@launch
             }
 
+            this@Connection.wxUin = uin
             logInfo("开始登录舞萌net")
             val maimai = wx.doOAuth("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx") {
                 install(HttpTimeout) {
