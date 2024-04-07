@@ -6,8 +6,8 @@ import io.ktor.server.websocket.*
 import io.ktor.util.logging.*
 import io.ktor.websocket.*
 import top.kagg886.maimai.data.DataPack
+import top.kagg886.maimai.util.Statics
 import top.kagg886.maimai.ws.Connection
-import top.kagg886.maimai.ws.logInfo
 import java.time.Duration
 import java.util.*
 
@@ -27,6 +27,7 @@ fun Application.configureSockets() {
         webSocket("/ws") {
             val session = Connection(this)
             list.add(session)
+            Statics.staticConnection()
             for (frame in incoming) {
                 if (frame is Frame.Text) {
                     println(frame.readText())

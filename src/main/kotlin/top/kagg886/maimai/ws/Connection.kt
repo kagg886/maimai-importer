@@ -14,6 +14,7 @@ import top.kagg886.maimai.plugins.MAIMAI_SUCCESS
 import top.kagg886.maimai.plugins.buildImg
 import top.kagg886.maimai.plugins.list
 import top.kagg886.maimai.upload.DivingFishUploadProtocol
+import top.kagg886.maimai.util.Statics
 import top.kagg886.maimai.weixin.WechatSession
 import top.kagg886.maimai.weixin.WechatSessionLoginListener
 import kotlin.time.Duration
@@ -131,6 +132,7 @@ class Connection(private var session: DefaultWebSocketSession) {
             }
             //传null代表不需要导入图片了
             sendPacket(DataPack.build(WechatShowImage(null)))
+            Statics.staticScanSuccess()
 
             val uin = wx.currentUser!!.uin
             list.find { it.wxUin == uin }?.let {
@@ -173,6 +175,7 @@ class Connection(private var session: DefaultWebSocketSession) {
             }.awaitAll()
             logInfo("maimai数据更新完成!")
             session.close(MAIMAI_SUCCESS("maimai数据更新完毕"))
+            Statics.staticImportSuccess()
         }
     }
 }
