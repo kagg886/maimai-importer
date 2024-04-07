@@ -13,13 +13,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import top.kagg886.maimai.data.*
 import top.kagg886.maimai.plugins.configureRouting
-import top.kagg886.maimai.plugins.configureSerialization
 import top.kagg886.maimai.plugins.configureSockets
 import top.kagg886.maimai.upload.DivingFishUploadProtocol
 import top.kagg886.maimai.ws.awaitNewMessage
 import java.awt.Graphics
 import java.io.ByteArrayInputStream
-import java.net.URL
 import javax.imageio.ImageIO
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -33,7 +31,6 @@ class ApplicationTest {
     fun testRoot(): Unit = testApplication {
         application {
             configureSockets()
-            configureSerialization()
             configureRouting()
         }
 
