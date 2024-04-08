@@ -177,18 +177,16 @@ class LxnsUploadProtocol(conn0: Connection, config: LxnsUploadConfig) :
                                 }.onFailure {
                                     println(it)
                                 }.getOrThrow()
+                                val songName = ele.getElementsByClass("music_name_block t_l f_13 break").text()
 
                                 //https://maimai.wahlap.com/maimai-mobile/img/music_dx.png
-                                val songType = ele.getElementsByClass("music_kind_icon").let {
-                                    if (it.isEmpty()) {
-                                        return@let SongType.dx
-                                    }
-                                    return@let SongType.standard
-                                }
+                                //https://maimai.wahlap.com/maimai-mobile/img/music_standard.png
+                                val songType = if (ele.toString()
+                                        .contains("https://maimai.wahlap.com/maimai-mobile/img/music_dx.png")
+                                ) SongType.dx else SongType.standard
 
                                 val levelIndex = LevelIndex.entries.find { s -> s.diff == it }!!
 
-                                val songName = ele.getElementsByClass("music_name_block t_l f_13 break").text()
 
                                 //TODO 关于DON't STOP ROCK IN，net返回数据中分割为1空格，落雪为2空格
                                 return@mapNotNull Score(
