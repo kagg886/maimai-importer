@@ -22,7 +22,7 @@ object Statics {
         connection += 1
         scope.launch {
             delay(delay)
-            connection - 1
+            connection -= 1
         }
     }
 
@@ -30,7 +30,7 @@ object Statics {
         scanSuccess += 1
         scope.launch {
             delay(delay)
-            scanSuccess - 1
+            scanSuccess -= 1
         }
     }
 
@@ -38,7 +38,7 @@ object Statics {
         importSuccess += 1
         scope.launch {
             delay(delay)
-            importSuccess - 1
+            importSuccess -= 1
         }
     }
 }

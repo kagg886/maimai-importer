@@ -29,6 +29,7 @@ import kotlin.time.Duration.Companion.seconds
 private val log = KtorSimpleLogger("Client")
 
 class ApplicationTest {
+
     @Test
     fun testLxnsScoreBean() {
         val score = Score(
@@ -39,7 +40,9 @@ class ApplicationTest {
             dxScore = 114514,
             type = SongType.standard
         )
-        println(Json.encodeToString(score))
+        println(Json {
+            encodeDefaults = true
+        }.encodeToString(score))
     }
 
     @Test

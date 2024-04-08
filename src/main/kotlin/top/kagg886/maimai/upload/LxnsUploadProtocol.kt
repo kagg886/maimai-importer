@@ -41,7 +41,7 @@ class LxnsUploadProtocol(conn0: Connection, config: LxnsUploadConfig) :
     private val net = HttpClient {
         install(DefaultRequest) {
             headers {
-                header("Authorization", "wju1aVqESajGqpm5L0K2LtN8QBl2XyZL2FrX27Pi6ws=")
+                header("Authorization", "YVwMADiPN9Av2K3MtsqKrIiV_lX4grg3rlKbYSA7-i0=")
             }
         }
 
@@ -51,7 +51,10 @@ class LxnsUploadProtocol(conn0: Connection, config: LxnsUploadConfig) :
         }
 
         install(ContentNegotiation) {
-            json(Json { ignoreUnknownKeys = true })
+            json(Json {
+                ignoreUnknownKeys = true
+                encodeDefaults = true
+            })
         }
     }
 
