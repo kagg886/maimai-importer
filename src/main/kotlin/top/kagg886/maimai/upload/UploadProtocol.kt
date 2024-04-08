@@ -1,10 +1,12 @@
 package top.kagg886.maimai.upload
 
+import io.ktor.client.*
 import kotlinx.serialization.Serializable
+import top.kagg886.maimai.ws.Connection
 
-abstract class UploadProtocol<T>(val config: T) {
+abstract class UploadProtocol<T>(val conn: Connection, val config: T) {
     abstract suspend fun auth()
-    abstract suspend fun upload(diff: Int, sourceHTML: String)
+    abstract suspend fun upload(maimaiClient: HttpClient)
 }
 
 @Serializable
@@ -12,7 +14,7 @@ data class ProtocolDescription(
     val name: String,
     val url: String,
     val require: List<RequireArgs>,
-    val className:String
+    val className: String,
 )
 
 @Serializable

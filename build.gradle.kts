@@ -40,4 +40,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
     implementation(project(":wechat-web-oauth"))
+
+    implementation("org.jsoup:jsoup:1.17.2")
 }

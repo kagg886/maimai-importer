@@ -11,10 +11,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import top.kagg886.maimai.data.*
 import top.kagg886.maimai.plugins.configureRouting
 import top.kagg886.maimai.plugins.configureSockets
-import top.kagg886.maimai.upload.DivingFishUploadProtocol
+import top.kagg886.maimai.upload.*
 import top.kagg886.maimai.ws.awaitNewMessage
 import java.awt.Graphics
 import java.io.ByteArrayInputStream
@@ -22,11 +24,24 @@ import javax.imageio.ImageIO
 import javax.swing.JFrame
 import javax.swing.JPanel
 import kotlin.test.Test
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 private val log = KtorSimpleLogger("Client")
 
 class ApplicationTest {
+    @Test
+    fun testLxnsScoreBean() {
+        val score = Score(
+            id = 123,
+            levelIndex = LevelIndex.MASTER,
+            achievements = 100.4890f,
+            fc = FCType.fcp,
+            dxScore = 114514,
+            type = SongType.standard
+        )
+        println(Json.encodeToString(score))
+    }
+
     @Test
     fun testRoot(): Unit = testApplication {
         application {
@@ -52,11 +67,13 @@ class ApplicationTest {
                             continue
                         }
                         frame?.dispose()
-                        val qr = ImageIO.read(ByteArrayInputStream(
-                            client.get("/img") {
-                                parameter("id",url)
-                            }.readBytes()
-                        ))
+                        val qr = ImageIO.read(
+                            ByteArrayInputStream(
+                                client.get("/img") {
+                                    parameter("id", url)
+                                }.readBytes()
+                            )
+                        )
                         frame = JFrame("扫描二维码")
 
                         frame.add(object : JPanel() {
@@ -116,22 +133,6 @@ class ApplicationTest {
             ).encode()
         )
     }
-
-    @Test
-    fun testDivingFishProtocol(): Unit = runBlocking {
-        val protocol = DivingFishUploadProtocol(
-            DivingFishUploadProtocol.DivingFishUploadConfig(
-                "root", "123456",
-                listOf(1, 2, 3)
-            )
-        )
-        try {
-            protocol.auth()
-            throw Exception()
-        } catch (ignored: IllegalArgumentException) {
-        }
-    }
-
     @Test
     fun testFlow(): Unit = runBlocking {
         //MutableSharedFlow的first()会等待新消息，但是MutableStateFlow不会
@@ -165,7 +166,7 @@ class ApplicationTest {
         }
 
         for (i in 1..4) {
-            println(flow.awaitNewMessage(timeout = Duration.parse("1s")))
+            println(flow.awaitNewMessage(timeout = 1.seconds))
         }
     }
 }

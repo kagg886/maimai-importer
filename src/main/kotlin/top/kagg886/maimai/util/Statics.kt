@@ -5,13 +5,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Transient
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 object Statics {
     @Transient
     private val scope = CoroutineScope(Dispatchers.Default)
 
-    private val delay = Duration.parse("1h")
+    private val delay = 1.hours
 
 
     var connection = 0

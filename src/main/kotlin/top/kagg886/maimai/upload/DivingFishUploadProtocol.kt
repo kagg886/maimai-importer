@@ -4,15 +4,21 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
+import top.kagg886.maimai.util.toMaimaiDifficult
+import top.kagg886.maimai.ws.Connection
+import top.kagg886.maimai.ws.logInfo
+import kotlin.time.measureTimedValue
 
-class DivingFishUploadProtocol(config: DivingFishUploadConfig) :
-    UploadProtocol<DivingFishUploadProtocol.DivingFishUploadConfig>(config) {
+class DivingFishUploadProtocol(conn0: Connection, config: DivingFishUploadConfig) :
+    UploadProtocol<DivingFishUploadProtocol.DivingFishUploadConfig>(conn0, config) {
 
     @Serializable
     data class DivingFishUploadConfig(
@@ -53,10 +59,26 @@ class DivingFishUploadProtocol(config: DivingFishUploadConfig) :
         }
     }
 
-    override suspend fun upload(diff: Int, sourceHTML: String) {
-        net.post("https://www.diving-fish.com/api/pageparser/page") {
-            contentType(ContentType.Text.Plain)
-            setBody("<login><u>${config.username}</u><p>${config.password}</p></login>".trimIndent() + sourceHTML)
+    override suspend fun upload(maimaiClient: HttpClient) {
+        coroutineScope {
+            config.diff.map {
+                val diff = it.toMaimaiDifficult()
+                async {
+                    conn.logInfo("开始获取${diff}难度数据")
+                    val (value, time) = measureTimedValue {
+                        maimaiClient.get("https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=$it")
+                            .bodyAsText()
+                    }
+                    conn.logInfo("获取${diff}难度数据完成!用时:${time}")
+
+                    net.post("https://www.diving-fish.com/api/pageparser/page") {
+                        contentType(ContentType.Text.Plain)
+                        setBody("<login><u>${config.username}</u><p>${config.password}</p></login>".trimIndent() + value)
+                    }
+
+                    conn.logInfo("上传${diff}难度数据完成!")
+                }
+            }.awaitAll()
         }
     }
 

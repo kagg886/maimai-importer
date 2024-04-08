@@ -12,9 +12,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import top.kagg886.maimai.upload.DivingFishUploadProtocol
+import top.kagg886.maimai.upload.LxnsUploadProtocol
 import top.kagg886.maimai.util.Statics
 import java.util.*
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 val imgCache = mutableMapOf<String, ByteArray>()
 
@@ -24,7 +25,7 @@ fun buildImg(img: ByteArray): String {
     val uuid = UUID.randomUUID().toString().replace("-", "")
     imgCache[uuid] = img
     scope.launch { //15min后删除图像
-        delay(Duration.parse("15m"))
+        delay(15.minutes)
         imgCache.remove(uuid)
     }
     return uuid
@@ -57,7 +58,8 @@ fun Application.configureRouting() {
         get("/config") {
             call.respond(
                 listOf(
-                    DivingFishUploadProtocol.getDescription()
+                    DivingFishUploadProtocol.getDescription(),
+                    LxnsUploadProtocol.getDescription()
                 )
             )
         }

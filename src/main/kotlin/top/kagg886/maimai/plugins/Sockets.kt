@@ -13,7 +13,7 @@ import java.util.*
 
 val list = Collections.synchronizedSet<Connection>(LinkedHashSet())
 
-val logger = KtorSimpleLogger("CloseReason")
+private val logger = KtorSimpleLogger("CloseReason")
 
 fun Application.configureSockets() {
     install(WebSockets) {

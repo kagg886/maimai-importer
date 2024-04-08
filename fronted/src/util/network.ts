@@ -1,8 +1,10 @@
-const base_url = "localhost:8080"
-//const base_url = window.location.host
+// const base_url = "localhost:8080"
+const base_url = import.meta.env.DEV ? "localhost:8080" : window.location.host
+
+const schema = import.meta.env.DEV ? "" : "s"
 
 export const request = async (url: string, init: RequestInit = {}) => {
-    return await fetch(`http://${base_url}/${url}`, init).then(res => res.json())
+    return await fetch(`http${schema}://${base_url}/${url}`, init).then(res => res.json())
 }
 
 export type Listener = {
@@ -12,7 +14,7 @@ export type Listener = {
 }
 
 export const createSocket = (listener: Listener) => {
-    const ws = new WebSocket(`ws://${base_url}/ws`)
+    const ws = new WebSocket(`ws${schema}://${base_url}/ws`)
     ws.onmessage = (ev: MessageEvent<string>) => {
         console.log('receive msg:', ev.data)
         const s = JSON.parse(ev.data)
@@ -30,7 +32,7 @@ export const createSocket = (listener: Listener) => {
                     listener.onImageGenerated("")
                     return
                 }
-                listener.onImageGenerated(`http://${base_url}/img?id=${img.uid}`)
+                listener.onImageGenerated(`http${schema}://${base_url}/img?id=${img.uid}`)
                 break
             case "top.kagg886.maimai.data.RequireMessage":
                 const msg = parseContent<RequireMessage>(pack)

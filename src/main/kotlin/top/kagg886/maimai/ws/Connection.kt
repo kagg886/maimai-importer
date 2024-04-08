@@ -1,8 +1,6 @@
 package top.kagg886.maimai.ws
 
 import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.util.logging.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
@@ -14,11 +12,13 @@ import top.kagg886.maimai.plugins.MAIMAI_SUCCESS
 import top.kagg886.maimai.plugins.buildImg
 import top.kagg886.maimai.plugins.list
 import top.kagg886.maimai.upload.DivingFishUploadProtocol
+import top.kagg886.maimai.upload.LxnsUploadProtocol
 import top.kagg886.maimai.util.Statics
 import top.kagg886.maimai.weixin.WechatSession
 import top.kagg886.maimai.weixin.WechatSessionLoginListener
 import kotlin.time.Duration
-import kotlin.time.measureTimedValue
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class Connection(private var session: DefaultWebSocketSession) {
     private val flow = MutableSharedFlow<DataPack>()
@@ -54,10 +54,14 @@ class Connection(private var session: DefaultWebSocketSession) {
             logInfo("等待客户端推送查分器配置...(3s)")
 
             sendPacket(DataPack.build(RequireMessage(RequireMessageInfo.PROTOCOL_CONFIG)))
-            val protocol = flow.awaitNewMessage(timeout = Duration.parse("3s"))?.let {
+            val protocol = flow.awaitNewMessage(timeout = 3.seconds)?.let {
                 when {
                     it.isInstance(DivingFishUploadProtocol.DivingFishUploadConfig::class.java) -> {
-                        DivingFishUploadProtocol(it.content())
+                        DivingFishUploadProtocol(this@Connection, it.content())
+                    }
+
+                    it.isInstance(LxnsUploadProtocol.LxnsUploadConfig::class.java) -> {
+                        LxnsUploadProtocol(this@Connection, it.content())
                     }
 
                     else -> null
@@ -80,7 +84,7 @@ class Connection(private var session: DefaultWebSocketSession) {
 
             logInfo("等待推送微信uid...(3s)")
             sendPacket(DataPack.build(RequireMessage(RequireMessageInfo.PROTOCOL_CONFIG)))
-            flow.awaitNewMessage(timeout = Duration.parse("3s"))?.apply {
+            flow.awaitNewMessage(timeout = 3.seconds)?.apply {
                 val store = contentOrNull<SessionRestore>()
                 if (store == null) {
                     logWarn("微信uid未推送，将作为新会话开始导入流程")
@@ -152,42 +156,24 @@ class Connection(private var session: DefaultWebSocketSession) {
             logInfo("开始登录舞萌net")
             val maimai = wx.doOAuth("https://tgk-wcaime.wahlap.com/wc_auth/oauth/authorize/maimai-dx") {
                 install(HttpTimeout) {
-                    requestTimeoutMillis = Duration.parse("10m").inWholeMilliseconds
-                    connectTimeoutMillis = Duration.parse("10m").inWholeMilliseconds
-                    socketTimeoutMillis = Duration.parse("10m").inWholeMilliseconds
+                    requestTimeoutMillis = 10.minutes.inWholeMilliseconds
+                    connectTimeoutMillis = 10.minutes.inWholeMilliseconds
+                    socketTimeoutMillis = 10.minutes.inWholeMilliseconds
                 }
             }
             wx.logout()
             logInfo("舞萌net登录完毕，微信已退出")
-
-            protocol.config.diff.map {
-                val diff = it.toMaimaiDifficult()
-                async {
-                    logInfo("开始获取${diff}难度数据")
-                    val (value, time) = measureTimedValue {
-                        maimai.get("https://maimai.wahlap.com/maimai-mobile/record/musicGenre/search/?genre=99&diff=$it")
-                            .bodyAsText()
-                    }
-                    logInfo("获取${diff}难度数据完成!用时:${time}")
-                    protocol.upload(it, value)
-                    logInfo("上传${diff}难度数据完成!")
-                }
-            }.awaitAll()
+            runCatching {
+                protocol.upload(maimai)
+            }.onFailure {
+                logError("maimai数据更新失败", it)
+                session.close(MAIMAI_SUCCESS("maimai数据更新失败:${it.message}"))
+                return@launch
+            }
             logInfo("maimai数据更新完成!")
             session.close(MAIMAI_SUCCESS("maimai数据更新完毕"))
             Statics.staticImportSuccess()
         }
-    }
-}
-
-private fun Int.toMaimaiDifficult(): String {
-    return when (this) {
-        0 -> "Basic"
-        1 -> "Advance"
-        2 -> "Expert"
-        3 -> "Master"
-        4 -> "Re: Master"
-        else -> throw NumberFormatException("")
     }
 }
 

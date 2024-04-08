@@ -2,7 +2,6 @@ package top.kagg886.maimai.weixin
 
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cookies.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.awt.Graphics
@@ -13,7 +12,7 @@ import javax.swing.JPanel
 import kotlin.reflect.jvm.isAccessible
 import kotlin.test.Test
 import kotlin.test.assertNotNull
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 
 class WechatSessionTest {
@@ -67,9 +66,9 @@ class WechatSessionTest {
             store = store
         ) {
             install(HttpTimeout) {
-                requestTimeoutMillis = Duration.parse("10m").inWholeMilliseconds
-                connectTimeoutMillis = Duration.parse("10m").inWholeMilliseconds
-                socketTimeoutMillis = Duration.parse("10m").inWholeMilliseconds
+                requestTimeoutMillis = 10.minutes.inWholeMilliseconds
+                connectTimeoutMillis = 10.minutes.inWholeMilliseconds
+                socketTimeoutMillis = 10.minutes.inWholeMilliseconds
             }
 
 //            install(Logging) {
