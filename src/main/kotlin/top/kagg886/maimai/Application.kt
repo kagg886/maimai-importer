@@ -10,18 +10,21 @@ import top.kagg886.maimai.plugins.configureRouting
 import top.kagg886.maimai.plugins.configureSockets
 import java.io.File
 
-fun main() {
+val appConfig by lazy {
     val configFile = File("application.conf")
-    val config = if (configFile.exists()) {
+    if (configFile.exists()) {
         HoconApplicationConfig(ConfigFactory.parseFile(configFile))
     } else {
         HoconApplicationConfig(ConfigFactory.load())
     }
+}
 
-    val host = config.property("ktor.deployment.host").getString()
-    val port = config.property("ktor.deployment.port").getString().toInt()
+val lxnsKey = checkNotNull(appConfig.propertyOrNull("application.lxns.apiKey")) {
+    "配置：application.lxns.apiKey 不得为空！"
+}
 
-    embeddedServer(Netty, host = host, port = port, module = Application::module)
+fun main() {
+    embeddedServer(Netty, host = appConfig.host, port = appConfig.port, module = Application::module)
         .start(wait = true)
 }
 

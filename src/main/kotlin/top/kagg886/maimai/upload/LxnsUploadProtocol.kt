@@ -19,6 +19,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
+import top.kagg886.maimai.lxnsKey
 import top.kagg886.maimai.util.bodyAsDocument
 import top.kagg886.maimai.util.bodyAsJson
 import top.kagg886.maimai.util.toMaimaiDifficult
@@ -41,7 +42,7 @@ class LxnsUploadProtocol(conn0: Connection, config: LxnsUploadConfig) :
     private val net = HttpClient {
         install(DefaultRequest) {
             headers {
-                header("Authorization", "YVwMADiPN9Av2K3MtsqKrIiV_lX4grg3rlKbYSA7-i0=")
+                header("Authorization", lxnsKey)
             }
         }
 
