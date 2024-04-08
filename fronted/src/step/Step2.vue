@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import {useRouter} from "vue-router";
-import {inject, nextTick, onMounted, ref, watch} from "vue";
+import {inject, ref} from "vue";
 import {createSocket, LogMessage, RequireMessage} from "../util/network.ts";
-import {VVirtualScroll} from 'vuetify/components'
 
 const router = useRouter()
 const config = localStorage.getItem("config") as string
@@ -52,17 +51,6 @@ const calcClass = (level: number) => {
 
 const loggerList = ref<Array<LogMessage>>([])
 
-const virtualScroll = ref<VVirtualScroll>()
-
-onMounted(() => {
-  //TODO 滚动总是停留在倒数第二个，bug待解决
-  watch(loggerList.value, async () => {
-    console.log('fab')
-    await nextTick()
-    virtualScroll.value!!.scrollToIndex(loggerList.value.length)
-  })
-})
-
 // loggerList.value.push({
 //   level: 1,
 //   msg: "qwq",
@@ -107,7 +95,7 @@ const show = ref(false)
 const url = ref('')
 
 const socket = createSocket({
-  onLogger: (log: LogMessage) => {
+  onLogger: async (log: LogMessage) => {
     loggerList.value.push(log)
   },
   onImageGenerated: (url0: string) => {
@@ -169,7 +157,6 @@ const showLog = (msg0: string) => {
 <template>
   <div>
     <v-virtual-scroll
-        ref="virtualScroll"
         :height="height"
         :items="loggerList">
       <template v-slot:default="{ item }">
